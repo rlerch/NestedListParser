@@ -43,29 +43,44 @@ namespace NestedListParser
 
             if (Matches(_openParen, toParse))
             {
-                var trimmed = _openParen.Replace(toParse, string.Empty);
-                toReturn.AddRange(Parse(trimmed, level + 1));
+                HandleOpenParen(toParse, level, toReturn);
             }
 
             if (Matches(_wordRegex, toParse))
             {
-                var value = GetValue(toParse);
-                var trimmed = _wordRegex.Replace(toParse, string.Empty);
-                toReturn.Add(new ParseResult {
-                    Value = value,
-                    Level = level
-                });
-                toReturn.AddRange(Parse(trimmed, level));
+                HandleKeyword(toParse, level, toReturn);
             }
 
             if (Matches(_closeParen, toParse))
             {
-                var trimmed = _closeParen.Replace(toParse, string.Empty);
-                toReturn.AddRange(Parse(trimmed, level - 1));
+                HandleCloseParen(toParse, level, toReturn);
             }
 
-
             return toReturn;
-        } 
+        }
+
+        private void HandleCloseParen(string toParse, int level, List<ParseResult> toReturn)
+        {
+            var trimmed = _closeParen.Replace(toParse, string.Empty);
+            toReturn.AddRange(Parse(trimmed, level - 1));
+        }
+
+        private void HandleKeyword(string toParse, int level, List<ParseResult> toReturn)
+        {
+            var value = GetValue(toParse);
+            var trimmed = _wordRegex.Replace(toParse, string.Empty);
+            toReturn.Add(new ParseResult
+            {
+                Value = value,
+                Level = level
+            });
+            toReturn.AddRange(Parse(trimmed, level));
+        }
+
+        private void HandleOpenParen(string toParse, int level, List<ParseResult> toReturn)
+        {
+            var trimmed = _openParen.Replace(toParse, string.Empty);
+            toReturn.AddRange(Parse(trimmed, level + 1));
+        }
     }
 }
