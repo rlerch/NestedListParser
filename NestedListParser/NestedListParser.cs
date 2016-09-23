@@ -19,6 +19,11 @@ namespace NestedListParser
         }
     }
 
+    /// <summary>
+    /// The idea of this class is to chomp away the string bit by bit from the front and
+    /// generate a list of ParseResults as we encounter keywords, keeping track of
+    /// the nesting level we are currently at. Inspired by a recursive decent parser.
+    /// </summary>
     public class NestedListParser
     {
         private readonly Regex _openParen = new Regex("^\\(", RegexOptions.None);
@@ -37,6 +42,9 @@ namespace NestedListParser
             return match.Groups["value"].Value;
         }
 
+        //Here we start at level -1 which is a bit odd but 
+        //the rules say that the "first level" of nesting should get zero 
+        //hyphens.
         public List<ParseResult> Parse(string toParse, int level = -1)
         {
             var toReturn = new List<ParseResult>();
