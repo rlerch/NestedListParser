@@ -12,13 +12,14 @@ namespace NestedListParser
         {
             var toParse = "(id,created,employee(id,firstname,employeeType(id), lastname),location)";
             var parser = new NestedListParser();
-            var parseResults = parser.Parse(toParse);
+            var parseResult = parser.Parse(toParse);
 
-            foreach (var parseResult in parseResults.OrderBy(x => x.Value).ThenBy(x => x.Level))
-            {
-                Console.WriteLine(parseResult);
-            }
+            //foreach (var parseResult in parseResults.OrderBy(x => x.Value).ThenBy(x => x.Level))
+            //{
+            //    Console.WriteLine(parseResult);
+            //}
             //Keep window open
+            parseResult.Print();
             Console.Read();
         }
     }

@@ -11,11 +11,27 @@ namespace NestedListParser
     {
         public string Value { get; set; }
         public int Level { get; set; }
+        public ParseResult Parent { get; set; }
+        public List<ParseResult> Children { get; set; }
+
+        public ParseResult()
+        {
+            Children = new List<ParseResult>();
+        }
 
         public override string ToString()
         {
             var listOfHyphens = Enumerable.Range(0, Level).Select((x) => "-");
             return $"{string.Join(string.Empty, listOfHyphens)} {Value}";
+        }
+
+        public void Print()
+        {
+            foreach(var child in Children.OrderBy(x => x.Value))
+            {
+                Console.WriteLine($"{child}");
+                child.Print();
+            }
         }
     }
 
@@ -45,50 +61,61 @@ namespace NestedListParser
         //Here we start at level -1 which is a bit odd but 
         //the rules say that the "first level" of nesting should get zero 
         //hyphens.
-        public List<ParseResult> Parse(string toParse, int level = -1)
+        public ParseResult Parse(string toParse, int level = -1, ParseResult parent = null)
         {
+            if (string.IsNullOrWhiteSpace(toParse))
+                return null;
+
+            parent = parent ?? new ParseResult { Value = "root" };
             var toReturn = new List<ParseResult>();
 
             if (Matches(_openParen, toParse))
             {
-                HandleOpenParen(toParse, level, toReturn);
+                HandleOpenParen(toParse, level, toReturn, parent);
+                return parent;
             }
 
             if (Matches(_wordRegex, toParse))
             {
-                HandleKeyword(toParse, level, toReturn);
+                HandleKeyword(toParse, level, toReturn, parent);
+                return parent;
             }
 
             if (Matches(_closeParen, toParse))
             {
-                HandleCloseParen(toParse, level, toReturn);
+                HandleCloseParen(toParse, level, toReturn, parent);
+                return parent;
             }
 
-            return toReturn;
+            return parent;
         }
 
-        private void HandleCloseParen(string toParse, int level, List<ParseResult> toReturn)
+        private void HandleCloseParen(string toParse, int level, List<ParseResult> toReturn, ParseResult parent)
         {
             var trimmed = _closeParen.Replace(toParse, string.Empty);
-            toReturn.AddRange(Parse(trimmed, level - 1));
+            Parse(trimmed, level - 1, parent.Parent);
         }
 
-        private void HandleKeyword(string toParse, int level, List<ParseResult> toReturn)
+        private void HandleKeyword(string toParse, int level, List<ParseResult> toReturn, ParseResult parent)
         {
             var value = GetValue(toParse);
             var trimmed = _wordRegex.Replace(toParse, string.Empty);
-            toReturn.Add(new ParseResult
+
+            var toAdd = new ParseResult
             {
                 Value = value,
-                Level = level
-            });
-            toReturn.AddRange(Parse(trimmed, level));
+                Level = level,
+                Parent = parent,
+            };
+
+            parent.Children.Add(toAdd);
+            Parse(trimmed, level, parent);
         }
 
-        private void HandleOpenParen(string toParse, int level, List<ParseResult> toReturn)
+        private void HandleOpenParen(string toParse, int level, List<ParseResult> toReturn, ParseResult parent)
         {
             var trimmed = _openParen.Replace(toParse, string.Empty);
-            toReturn.AddRange(Parse(trimmed, level + 1));
+            Parse(trimmed, level + 1, parent?.Children?.LastOrDefault() ?? parent);
         }
     }
 }
