@@ -14,12 +14,8 @@ namespace NestedListParser
             var parser = new NestedListParser();
             var parseResult = parser.Parse(toParse);
 
-            //foreach (var parseResult in parseResults.OrderBy(x => x.Value).ThenBy(x => x.Level))
-            //{
-            //    Console.WriteLine(parseResult);
-            //}
-            //Keep window open
             parseResult.Print();
+            //Keep window open
             Console.Read();
         }
     }

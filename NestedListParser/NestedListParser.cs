@@ -58,33 +58,27 @@ namespace NestedListParser
             return match.Groups["value"].Value;
         }
 
-        //Here we start at level -1 which is a bit odd but 
-        //the rules say that the "first level" of nesting should get zero 
-        //hyphens.
         public ParseResult Parse(string toParse, int level = -1, ParseResult parent = null)
         {
             if (string.IsNullOrWhiteSpace(toParse))
                 return null;
 
-            parent = parent ?? new ParseResult { Value = "root" };
+            parent = parent ?? new ParseResult { Value = "root" }; //Root node so that every real node has a parent and the tree has a single top node
             var toReturn = new List<ParseResult>();
 
             if (Matches(_openParen, toParse))
             {
                 HandleOpenParen(toParse, level, toReturn, parent);
-                return parent;
             }
 
             if (Matches(_wordRegex, toParse))
             {
-                HandleKeyword(toParse, level, toReturn, parent);
-                return parent;
+                HandleKeyword(toParse, level, toReturn, parent);                
             }
 
             if (Matches(_closeParen, toParse))
             {
                 HandleCloseParen(toParse, level, toReturn, parent);
-                return parent;
             }
 
             return parent;
