@@ -17,11 +17,11 @@ namespace NestedListTest
         }
 
         [TestMethod]
-        public void WhenCalledWithEmptyString_ReturnsEmptyList()
+        public void WhenCalledWithEmptyString_ReturnsNull()
         {
             var toCheck = _parser.Parse(string.Empty);
 
-            Assert.AreEqual(0, toCheck.Count);
+            Assert.AreEqual(null, toCheck);
         }
 
         [TestMethod]
@@ -30,8 +30,8 @@ namespace NestedListTest
             var toParse = "SingleWord";
             var toCheck = _parser.Parse(toParse);
 
-            Assert.AreEqual(1, toCheck.Count);
-            Assert.AreEqual(toParse, toCheck.First().Value);
+            Assert.AreEqual(1, toCheck.Children.Count);
+            Assert.AreEqual(toParse, toCheck.Children.First().Value);
         }
 
         [TestMethod]
@@ -40,17 +40,15 @@ namespace NestedListTest
             var toParse = "(zero(one(two))))";
             var toCheck = _parser.Parse(toParse);
 
-            Assert.AreEqual(3, toCheck.Count);
-
-            var firstResult = toCheck[0];
+            var firstResult = toCheck.Children[0];
             Assert.AreEqual(0, firstResult.Level);
             Assert.AreEqual("zero", firstResult.Value);
 
-            var secondResult = toCheck[1];
+            var secondResult = firstResult.Children[0];
             Assert.AreEqual(1, secondResult.Level);
             Assert.AreEqual("one", secondResult.Value);
 
-            var thirdResult = toCheck[2];
+            var thirdResult = secondResult.Children[0];
             Assert.AreEqual(2, thirdResult.Level);
             Assert.AreEqual("two", thirdResult.Value);
         }
@@ -61,21 +59,19 @@ namespace NestedListTest
             var toParse = "(zero, one(two), zero)";
             var toCheck = _parser.Parse(toParse);
 
-            Assert.AreEqual(4, toCheck.Count);
-
-            var firstResult = toCheck[0];
+            var firstResult = toCheck.Children[0];
             Assert.AreEqual(0, firstResult.Level);
             Assert.AreEqual("zero", firstResult.Value);
 
-            var secondResult = toCheck[1];
+            var secondResult = toCheck.Children[1];
             Assert.AreEqual(0, secondResult.Level);
             Assert.AreEqual("one", secondResult.Value);
 
-            var thirdResult = toCheck[2];
+            var thirdResult = secondResult.Children[0];
             Assert.AreEqual(1, thirdResult.Level);
             Assert.AreEqual("two", thirdResult.Value);
 
-            var fourthResult = toCheck[3];
+            var fourthResult = toCheck.Children[2];
             Assert.AreEqual(0, fourthResult.Level);
             Assert.AreEqual("zero", fourthResult.Value);
         }
